@@ -42,6 +42,7 @@ app.use(session({ secret: "TOPSECRET", resave: false, saveUninitialized: false }
 app.use(passport.initialize());
 app.use(passport.session());
 
+// WARNING: MemoryStore is not recommended for production. Use a production session store like connect-mongo or connect-redis.
 //tag::loadGrantsPipeline[]
 app.use(loadGrants);
 //end::loadGrantsPipeline[]
@@ -57,7 +58,9 @@ passport.use(
       tokenURL: `${FUSIONAUTH_URL}/oauth2/token`,
       clientID: FUSIONAUTH_APP_CLIENTID,
       clientSecret: FUSIONAUTH_APP_CLIENT_SECRET,
-      callbackURL: process?.env?.VERCEL_PROJECT_PRODUCTION_URL ? `https://${VERCEL_PROJECT_PRODUCTION_URL}/auth/callback` : "http://localhost:3000/auth/callback",
+      callbackURL: process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/auth/callback`
+        : "http://localhost:3000/auth/callback",
     },
     async function (accessToken, refreshToken, profile, cb) {
       // Get the user profile from Fusion:
