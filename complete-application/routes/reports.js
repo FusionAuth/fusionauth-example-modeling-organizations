@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const checkGrantPermissions = require('../middleware/checkGrantPermissions');
 const fs = require('fs').promises;
-const multer  = require('multer');
-const upload = multer({ dest: 'data/reports' });
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 const reportData = require('../data/reports.json');
 
@@ -11,13 +12,13 @@ router.get('/', checkGrantPermissions(['Admin', 'Reports', 'Viewer']), function 
 
     const companyName = req.session.selectedGrant.entity.name;
     const companyId = req.session.selectedGrant.entity.id;
-    
+
     // you would load this from a database probably, and most likely with an ID instead of name. 
     const data = reportData[companyId];
 
     res.render('reports', {
         title: companyName + ' - Reports',
-        data: data, 
+        data: data,
         user: req.user.user,
         company: companyName,
         companyId: companyId,
@@ -27,7 +28,7 @@ router.get('/', checkGrantPermissions(['Admin', 'Reports', 'Viewer']), function 
 });
 
 
-router.post('/', checkGrantPermissions(['Admin', 'Reports']), upload.single('file_report') ,  async function (req, res, next) {
+router.post('/', checkGrantPermissions(['Admin', 'Reports']), upload.single('file_report'), async function (req, res, next) {
 
     const companyId = req.session.selectedGrant.entity.id;
     // rename the file to the original name + the unique identifier and put it in the correct company folder
@@ -53,6 +54,6 @@ router.get('/files/:file', checkGrantPermissions(['Admin', 'Reports']), async fu
         return res.status(404).send('File not found');
     }
     res.download(path);
-}); 
+});
 
 module.exports = router;
