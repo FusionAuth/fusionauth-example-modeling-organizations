@@ -30,21 +30,21 @@ router.get('/', checkGrantPermissions(['Admin', 'Reports', 'Viewer']), function 
 
 
 router.post('/', checkGrantPermissions(['Admin', 'Reports']), upload.single('file_report'), async function (req, res, next) {
-  if (process.env.VERCEL) {
-    // Disable uploads in production (Vercel)
-    return res.status(403).send('File uploads are disabled in production.');
-  }
-  // Local upload logic
-  const companyId = req.session.selectedGrant.entity.id;
-  const folderPath = `data/reports/${companyId}/`;
-  const uniqueName = `${req.file.filename}-${req.file.originalname}`;
-  await fs.mkdir(folderPath, { recursive: true });
-  await fs.rename(req.file.path, `${folderPath}${uniqueName}`);
+    if (process.env.VERCEL) {
+        // Disable uploads in production (Vercel)
+        return res.status(403).send('File uploads are disabled in production.');
+    }
+    // Local upload logic
+    const companyId = req.session.selectedGrant.entity.id;
+    const folderPath = `data/reports/${companyId}/`;
+    const uniqueName = `${req.file.filename}-${req.file.originalname}`;
+    await fs.mkdir(folderPath, { recursive: true });
+    await fs.rename(req.file.path, `${folderPath}${uniqueName}`);
 
-  req.body.file_url = `/reports/files/${uniqueName}`;
-  reportData[companyId].push(req.body);
-  await fs.writeFile('data/reports.json', JSON.stringify(reportData, null, 2));
-  res.redirect('/reports');
+    req.body.file_url = `/reports/files/${uniqueName}`;
+    reportData[companyId].push(req.body);
+    await fs.writeFile('data/reports.json', JSON.stringify(reportData, null, 2));
+    res.redirect('/reports');
 });
 
 
