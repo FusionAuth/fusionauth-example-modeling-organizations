@@ -21,7 +21,7 @@
     "entityIdHooli": "00000000-0000-0000-0000-000000000007",
     "entityIdAviato": "00000000-0000-0000-0000-000000000008"
   },
-  "licenseId": "ADD_YOUR_KEY_HERE",
+  "licenseId": "kreb3Vus6SEfzqe0rG2eB0TkQLgEpNcdCq7ghI1mE",
   "apiKeys": [
     {
       "key": "#{apiKey}",
@@ -120,7 +120,7 @@
           "type": {
             "id": "#{customerEntityTypeId}"
           },
-          "name": "Aviato", 
+          "name": "Aviato",
           "data": {
             "address": {
               "city": "Palo Alto",
