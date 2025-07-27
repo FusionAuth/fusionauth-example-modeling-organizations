@@ -28,25 +28,13 @@ router.get('/', checkGrantPermissions(['Admin', 'Reports', 'Viewer']), function 
 });
 
 
+
 router.post('/', checkGrantPermissions(['Admin', 'Reports']), upload.single('file_report'), async function (req, res, next) {
-
-    const companyId = req.session.selectedGrant.entity.id;
-    // rename the file to the original name + the unique identifier and put it in the correct company folder
-    const folderPath = `data/reports/${companyId}/`;
-    const uniqueName = `${req.file.filename}-${req.file.originalname}`;
-    await fs.mkdir(folderPath, { recursive: true });
-    await fs.rename(req.file.path, `${folderPath}${uniqueName}`);
-
-    req.body.file_url = `/reports/files/${uniqueName}`;
-    reportData[companyId].push(req.body);
-    await fs.writeFile('data/reports.json', JSON.stringify(reportData, null, 2));
-    res.redirect('/reports');
-});
   if (process.env.VERCEL) {
     // Disable uploads in production (Vercel)
     return res.status(403).send('File uploads are disabled in production.');
   }
-  // ...existing local upload logic...
+  // Local upload logic
   const companyId = req.session.selectedGrant.entity.id;
   const folderPath = `data/reports/${companyId}/`;
   const uniqueName = `${req.file.filename}-${req.file.originalname}`;
@@ -57,6 +45,7 @@ router.post('/', checkGrantPermissions(['Admin', 'Reports']), upload.single('fil
   reportData[companyId].push(req.body);
   await fs.writeFile('data/reports.json', JSON.stringify(reportData, null, 2));
   res.redirect('/reports');
+});
 
 
 router.get('/files/:file', checkGrantPermissions(['Admin', 'Reports']), async function (req, res, next) {
