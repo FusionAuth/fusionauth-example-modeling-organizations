@@ -57,7 +57,7 @@ passport.use(
       tokenURL: `${FUSIONAUTH_URL}/oauth2/token`,
       clientID: FUSIONAUTH_APP_CLIENTID,
       clientSecret: FUSIONAUTH_APP_CLIENT_SECRET,
-      callbackURL: VERCEL_PROJECT_PRODUCTION_URL ? `https://${VERCEL_PROJECT_PRODUCTION_URL}/auth/callback` : "http://localhost:3000/auth/callback",
+      callbackURL: process?.env?.VERCEL_PROJECT_PRODUCTION_URL ? `https://${VERCEL_PROJECT_PRODUCTION_URL}/auth/callback` : "http://localhost:3000/auth/callback",
     },
     async function (accessToken, refreshToken, profile, cb) {
       // Get the user profile from Fusion:
