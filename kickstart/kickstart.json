@@ -32,7 +32,6 @@
     {
       "method": "POST",
       "url": "/api/key/generate/#{asymmetricKeyId}",
-      "tenantId": "#{defaultTenantId}",
       "body": {
         "key": {
           "algorithm": "RS256",
@@ -120,7 +119,7 @@
           "type": {
             "id": "#{customerEntityTypeId}"
           },
-          "name": "Aviato", 
+          "name": "Aviato",
           "data": {
             "address": {
               "city": "Palo Alto",

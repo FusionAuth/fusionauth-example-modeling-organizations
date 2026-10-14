@@ -25,6 +25,7 @@ const FUSIONAUTH_URL = process.env.FUSIONAUTH_URL;
 const FUSIONAUTH_APP_CLIENTID = process.env.FUSIONAUTH_APP_CLIENTID;
 const FUSIONAUTH_APP_CLIENT_SECRET = process.env.FUSIONAUTH_APP_CLIENT_SECRET;
 const FUSIONAUTH_LOGOUT_URL = process.env.FUSIONAUTH_LOGOUT_URL;
+const FUSIONAUTH_API_KEY = process.env.FUSIONAUTH_API_KEY;
 
 const app = express();
 
@@ -42,9 +43,7 @@ app.use(session({ secret: "TOPSECRET", resave: false, saveUninitialized: false }
 app.use(passport.initialize());
 app.use(passport.session());
 
-//tag::loadGrantsPipeline[]
 app.use(loadGrants);
-//end::loadGrantsPipeline[]
 app.use(function (req, res, next) {
   req.logoutURL = FUSIONAUTH_LOGOUT_URL;
   next();
@@ -60,11 +59,12 @@ passport.use(
       callbackURL: "http://localhost:3000/auth/callback",
     },
     async function (accessToken, refreshToken, profile, cb) {
-      // Get the user profile from Fusion:
+      // user api no longer accepts JWTs, so look the user up by the token sub
       try {
-        const userResponse = await fetch(`${FUSIONAUTH_URL}/api/user`, {
+        const { sub } = JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64url').toString());
+        const userResponse = await fetch(`${FUSIONAUTH_URL}/api/user/${sub}`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`
+            'Authorization': FUSIONAUTH_API_KEY
           }
         });
         const user = await userResponse.json();
@@ -92,7 +92,6 @@ passport.deserializeUser(function (user, done) {
 app.use('/', indexRouter);
 app.get("/login", passport.authenticate("oauth2"));
 
-//tag::loadGrantsPassport[]
 app.get("/auth/callback",
   passport.authenticate("oauth2", { failureRedirect: "/" }), 
   loadGrants,
@@ -102,7 +101,6 @@ app.get("/auth/callback",
     res.redirect("/");
   }
 );
-//end::loadGrantsPassport[]
 
 app.use('/users', ensureLoggedIn('/login'), usersRouter);
 app.use('/sales', ensureLoggedIn('/login'), salesRouter);
